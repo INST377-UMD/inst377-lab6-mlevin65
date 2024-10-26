@@ -1,0 +1,83 @@
+<html>
+<head>
+    <title>Leaflet Map with Random Markers</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    
+    
+    <style>
+        /*css map*/
+        #map {
+            height: 400px;
+            width: 75%;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Map of the United States</h2>
+<div id="map"></div>
+
+<h3>Marker 1: <span id="marker1-coords"></span></h3>
+<p>Locality: <span id="marker1-locality"></span></p>
+
+<h3>Marker 2: <span id="marker2-coords"></span></h3>
+<p>Locality: <span id="marker2-locality"></span></p>
+
+<h3>Marker 3: <span id="marker3-coords"></span></h3>
+<p>Locality: <span id="marker3-locality"></span></p>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map').setView([38, -95], 3); //coordinates for usa
+    //setting up the OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    //function that generates random coordinates
+    function randCoord(min, max, fixed) {
+        
+        return (Math.random() * (max - min) + min).toFixed(fixed) * 1;
+    }
+
+    //function that adds the marker and gets locality info
+    function addMarker(lat, lng, markerId) {
+        //adding markers to the map
+        var marker = L.marker([lat, lng]).addTo(map);
+    
+        //dispalying the coordinates through the HTML 
+        document.getElementById(markerId + '-coords').textContent = `Latitude: ${lat}, Longitude: ${lng}`;
+    }
+    function getLocality(lat, lng, markerId) {
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(markerId + '-locality').textContent = data.locality || 'Unknown';
+        })
+        .catch(error => console.error('Error fetching locality:', error));
+    }
+    //making 3 random sets of coordinates
+    //latitude 
+    var lat1 = randCoord(30, 35, 3);
+    var lat2 = randCoord(30, 35, 3);
+    var lat3 = randCoord(30, 35, 3);
+    //longitude
+    var lng1 = randCoord(-90, -100, 3);
+    var lng2 = randCoord(-90, -100, 3);
+    var lng3 = randCoord(-90, -100, 3);
+
+    //adding the markers
+    addMarker(lat1, lng1, 'marker1');
+    addMarker(lat2, lng2, 'marker2');
+    addMarker(lat3, lng3, 'marker3');
+   
+    //fetching locality information
+    getLocality(lat1, lng1, 'marker1');
+    getLocality(lat2, lng2, 'marker2');
+    getLocality(lat3, lng3, 'marker3');
+
+
+</script>
+
+</body>
+</html>
